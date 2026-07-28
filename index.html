@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>奇门演卦馆 · 遁甲断事练习</title>
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' rx='14' fill='%238c2318'/><text x='50' y='72' font-size='62' text-anchor='middle' fill='%23f6f1e4' font-family='KaiTi,serif'>奇</text></svg>">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Serif+SC:wght@400;600;700&family=Ma+Shan+Zheng&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+
+<header class="site-header">
+  <div class="header-inner">
+    <div class="brand">
+      <span class="brand-seal">奇</span>
+      <div class="brand-text">
+        <h1>奇门演卦馆</h1>
+        <p class="brand-sub">时家奇门 · 转盘排局 · 断事练习</p>
+      </div>
+    </div>
+    <div class="header-right">
+      <div class="clock">
+        <span id="clockDate">——</span>
+        <span id="clockTime">--:--:--</span>
+        <span class="clock-label">北京时间</span>
+      </div>
+      <button id="btnHistory" class="ghost-btn" type="button">历 史</button>
+      <button id="btnSettings" class="ghost-btn" type="button">设 置</button>
+    </div>
+  </div>
+</header>
+
+<main class="main">
+
+  <!-- 迎客 -->
+  <section id="welcomeSection" class="panel welcome-panel">
+    <div class="welcome-ornament">☯</div>
+    <p class="welcome-poem">阴阳燮理藏玄机&nbsp;&nbsp;八门九星演天时</p>
+    <p class="welcome-desc">
+      客来问事，即时起局。你依当下北京时间所排之奇门盘为客断事，<br>
+      答毕自有师父点评高下、指点迷津。
+    </p>
+    <button id="btnInvite" class="primary-btn" type="button">迎 客 问 卦</button>
+    <p class="hint" id="apiHint"></p>
+  </section>
+
+  <!-- 顾客 -->
+  <section id="customerSection" class="panel customer-panel hidden">
+    <h2 class="panel-title"><span>来 客</span></h2>
+    <div class="customer-card">
+      <div class="customer-head">
+        <span class="customer-name" id="customerName"></span>
+        <span class="customer-meta" id="customerMeta"></span>
+      </div>
+      <p class="customer-demeanor" id="customerDemeanor"></p>
+      <blockquote class="customer-question" id="customerQuestion"></blockquote>
+      <div class="customer-tags">
+        <span class="tag" id="customerCategory"></span>
+        <span class="tag tag-source" id="customerSource"></span>
+      </div>
+    </div>
+  </section>
+
+  <!-- 盘面 -->
+  <section id="chartSection" class="panel chart-panel hidden">
+    <h2 class="panel-title"><span>奇 门 盘</span></h2>
+    <div class="chart-info" id="chartInfo"></div>
+    <div class="qimen-grid" id="qimenGrid"></div>
+    <p class="chart-note">上南下北 · 左东右西 · 拆补定局 · 禽随芮转 · 「符」值符落宫 「使」值使落宫 「空」旬空 「马」驿马</p>
+  </section>
+
+  <!-- 作答 -->
+  <section id="answerSection" class="panel answer-panel hidden">
+    <h2 class="panel-title"><span>断 语</span></h2>
+    <textarea id="answerInput" rows="7"
+      placeholder="请依盘面为客断事：先取用神（问事业看开门、婚姻看六合乙庚、财看生门、病看天芮……），察其落宫旺衰、临星门神，再结合空亡驿马，给出吉凶判断与具体建议。"></textarea>
+    <div class="answer-actions">
+      <button id="btnSubmit" class="primary-btn" type="button">呈 递 答 复</button>
+    </div>
+  </section>
+
+  <!-- 点评 -->
+  <section id="evalSection" class="panel eval-panel hidden">
+    <h2 class="panel-title"><span>师 父 点 评</span></h2>
+    <div class="eval-content" id="evalContent"></div>
+    <div class="eval-actions">
+      <button id="btnNext" class="primary-btn" type="button">送 客 · 再 迎 一 位</button>
+    </div>
+  </section>
+
+</main>
+
+<footer class="site-footer">
+  奇门演卦馆 · 排盘采用时家奇门 / 拆补定局 / 转盘飞布 · 内容仅供术数文化学习研究之用
+</footer>
+
+<!-- 设置弹窗 -->
+<div class="modal-mask hidden" id="settingsModal">
+  <div class="modal">
+    <div class="modal-head">
+      <h3>AI 接口设置</h3>
+      <button class="modal-close" data-close="settingsModal" type="button">✕</button>
+    </div>
+    <div class="modal-body">
+      <label class="field">
+        <span class="field-label">接口地址（OpenAI 兼容）</span>
+        <input type="text" id="cfgBaseUrl" placeholder="https://api.openai.com/v1">
+        <span class="field-tip">支持 OpenAI / DeepSeek / 通义 / 月之暗面 等兼容接口，填到 /v1 为止</span>
+      </label>
+      <label class="field">
+        <span class="field-label">API Key</span>
+        <input type="password" id="cfgApiKey" placeholder="sk-...">
+        <span class="field-tip">仅保存在本机浏览器 localStorage，不会上传到任何服务器</span>
+      </label>
+      <label class="field">
+        <span class="field-label">模型名称</span>
+        <input type="text" id="cfgModel" placeholder="例如 gpt-4o-mini / deepseek-chat / qwen-plus">
+      </label>
+      <p class="test-result" id="testResult"></p>
+    </div>
+    <div class="modal-foot">
+      <button id="btnTestApi" class="ghost-btn dark" type="button">测试连接</button>
+      <button id="btnSaveSettings" class="primary-btn" type="button">保 存</button>
+    </div>
+  </div>
+</div>
+
+<!-- 历史弹窗 -->
+<div class="modal-mask hidden" id="historyModal">
+  <div class="modal modal-wide">
+    <div class="modal-head">
+      <h3>练习历史</h3>
+      <button class="modal-close" data-close="historyModal" type="button">✕</button>
+    </div>
+    <div class="modal-body">
+      <div id="historyList"></div>
+    </div>
+    <div class="modal-foot">
+      <button id="btnClearHistory" class="ghost-btn dark" type="button">清空记录</button>
+    </div>
+  </div>
+</div>
+
+<script src="js/qimen.js"></script>
+<script src="js/ai.js"></script>
+<script src="js/app.js"></script>
+</body>
+</html>
