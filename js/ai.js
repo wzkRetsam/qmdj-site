@@ -120,8 +120,42 @@
     return c;
   }
 
+  // 弟子就当前盘面向师父请教（qaHistory: [{q, a}]；question 为空时表示求入手提示）
+  async function consult(customer, chartText, qaHistory, question) {
+    var messages = [
+      {
+        role: 'system',
+        content: [
+          '你是一位精通奇门遁甲的老师父，弟子正在练习为顾客断卦（时家奇门、拆补定局、转盘飞布），他会就当前盘面向你请教。',
+          '规矩：',
+          '1. 你是指点者而非代答者：可以讲解知识（用神选取、星门神含义、旺衰、格局、空亡驿马等），可以点出盘面上值得注意的要点，但不要直接给出完整断语和最终吉凶结论，把断卦留给弟子。',
+          '2. 回答要紧扣本局盘面与顾客所问之事，引用宫位时要与盘面一致，不可臆造。',
+          '3. 简明扼要，每次回答不超过 200 字，可用 Markdown 列要点。',
+          '4. 若弟子求提示，就给 2-3 条入手方向（如先看何用神、留意哪个宫），同样不下结论。',
+          '语气如老师父授徒：点到为止，启发为主。'
+        ].join('\n')
+      },
+      {
+        role: 'user',
+        content: '【起局盘面】\n' + chartText + '\n\n【顾客所问】\n' +
+          customer.name + '（' + (customer.identity || '') + '）问：' + customer.question +
+          '\n\n弟子接下来会就此盘向你请教。'
+      },
+      { role: 'assistant', content: '好，盘面我已看过，你问吧。' }
+    ];
+    (qaHistory || []).forEach(function (t) {
+      messages.push({ role: 'user', content: t.q });
+      messages.push({ role: 'assistant', content: t.a });
+    });
+    messages.push({
+      role: 'user',
+      content: question || '师父，我一时不知从何入手，请给我几条提示。'
+    });
+    return chat(messages, { temperature: 0.5 });
+  }
+
   // AI 点评学员断语
-  async function evaluate(customer, chartText, answer) {
+  async function evaluate(customer, chartText, answer, qaHistory) {
     var userContent = [
       '【起局盘面】',
       chartText,
@@ -134,6 +168,12 @@
       answer
     ].join('\n');
 
+    if (qaHistory && qaHistory.length) {
+      userContent += '\n\n【答复前弟子曾向你请教】\n' + qaHistory.map(function (t, i) {
+        return (i + 1) + '. 问：' + t.q + '\n　你答：' + t.a;
+      }).join('\n');
+    }
+
     return chat([
       {
         role: 'system',
@@ -141,7 +181,7 @@
           '你是一位精通奇门遁甲的老师父，正在指导弟子练习断卦。弟子依照给定的奇门盘（时家奇门、拆补定局、转盘飞布）为顾客断事，你要点评其表现。',
           '要求：',
           '1. 先依盘面给出你自己的简要参考断法：指明该问何事应取何用神，分析用神落宫的星、门、神、旺衰、空亡驿马等，得出吉凶结论与建议。',
-          '2. 再逐项点评弟子的答复：用神选取是否得当、断语是否有盘面依据、结论是否合理、对顾客的表达是否清楚妥帖。有错必指出，有可取之处也要肯定。',
+          '2. 再逐项点评弟子的答复：用神选取是否得当、断语是否有盘面依据、结论是否合理、对顾客的表达是否清楚妥帖。有错必指出，有可取之处也要肯定。若附有请教记录，顺带点评弟子是否把指点化入了断语（主动请教不扣分，据提示消化运用得好反应肯定）。',
           '3. 按十分制打分，评分标准：用神与思路 5 分、盘面依据 3 分、表达与建议 2 分。',
           '4. 最后给出 2-3 条具体的精进建议。',
           '输出使用 Markdown，结构如下：',
@@ -165,6 +205,7 @@
     testConnection: testConnection,
     generateCustomer: generateCustomer,
     randomLocalCustomer: randomLocalCustomer,
+    consult: consult,
     evaluate: evaluate
   };
 

@@ -10,7 +10,9 @@
   var state = {
     customer: null,
     chart: null,
-    busy: false
+    busy: false,
+    qaBusy: false,
+    qaLog: []
   };
 
   function $(id) { return document.getElementById(id); }
@@ -118,6 +120,57 @@
     }).join('');
   }
 
+  /* ---------- 请教师父 ---------- */
+
+  function appendQaMsg(role, html) {
+    var box = $('qaMessages');
+    var div = document.createElement('div');
+    div.className = 'qa-msg ' + role;
+    div.innerHTML = '<span class="qa-who">' + (role === 'student' ? '我' : '师父') + '</span><div class="qa-bubble">' + html + '</div>';
+    box.appendChild(div);
+    box.scrollTop = box.scrollHeight;
+    return div;
+  }
+
+  async function askMaster(question) {
+    if (state.qaBusy || !state.chart) return;
+    if (!AI.isConfigured()) {
+      if (question) appendQaMsg('student', '<p>' + escapeHtml(question) + '</p>');
+      appendQaMsg('master', '<p class="qa-warn">尚未配置 AI 接口，师父不在馆中。请点右上角「设 置」填入 API Key 后再来请教。</p>');
+      return;
+    }
+    state.qaBusy = true;
+    var input = $('qaInput');
+    input.disabled = true;
+    $('btnQaSend').disabled = true;
+    $('btnQaHint').disabled = true;
+
+    var shownQ = question || '师父，我一时不知从何入手，请给我几条提示。';
+    appendQaMsg('student', '<p>' + escapeHtml(shownQ) + '</p>');
+    var pending = appendQaMsg('master', '<p class="qa-thinking">师父捻须寻思……</p>');
+
+    try {
+      var reply = await AI.consult(state.customer, Qimen.chartToText(state.chart), state.qaLog, question || '');
+      pending.querySelector('.qa-bubble').innerHTML = mdToHtml(reply);
+      state.qaLog.push({ q: shownQ, a: reply });
+    } catch (err) {
+      pending.querySelector('.qa-bubble').innerHTML = '<p class="qa-warn">请教失败：' + escapeHtml(err.message) + '</p>';
+    }
+    $('qaMessages').scrollTop = $('qaMessages').scrollHeight;
+    input.disabled = false;
+    $('btnQaSend').disabled = false;
+    $('btnQaHint').disabled = false;
+    state.qaBusy = false;
+  }
+
+  function sendQa() {
+    var q = $('qaInput').value.trim();
+    if (!q) { $('qaInput').focus(); return; }
+    // 未配置 AI 时保留输入，便于配置后重发
+    if (AI.isConfigured()) $('qaInput').value = '';
+    askMaster(q);
+  }
+
   /* ---------- 历史记录 ---------- */
   function loadHistory() {
     try { return JSON.parse(localStorage.getItem(HISTORY_KEY)) || []; }
@@ -150,6 +203,11 @@
         '</summary>' +
         '<div class="h-body">' +
         '<h5>盘面</h5><pre class="h-chart">' + escapeHtml(e.chart || '') + '</pre>' +
+        (e.qa && e.qa.length
+          ? '<h5>请教记录（' + e.qa.length + ' 条）</h5>' + e.qa.map(function (t) {
+            return '<p>问：' + escapeHtml(t.q) + '</p>' + mdToHtml(t.a);
+          }).join('')
+          : '') +
         '<h5>我的断语</h5><p>' + escapeHtml(e.answer || '') + '</p>' +
         '<h5>师父点评</h5>' + (e.evaluation ? mdToHtml(e.evaluation) : '<p>（未点评）</p>') +
         '</div></details>';
@@ -188,6 +246,7 @@
 
     state.customer = customer;
     state.chart = chart;
+    state.qaLog = [];
 
     renderCustomer(customer);
     renderChart(chart);
@@ -195,8 +254,11 @@
     hide('welcomeSection');
     show('customerSection');
     show('chartSection');
+    show('qaSection');
     show('answerSection');
     hide('evalSection');
+    $('qaMessages').innerHTML = '';
+    $('qaInput').value = '';
     $('answerInput').value = '';
     $('btnSubmit').disabled = false;
     $('btnSubmit').textContent = '呈 递 答 复';
@@ -239,7 +301,7 @@
 
     var chartText = Qimen.chartToText(state.chart);
     try {
-      var evalText = await AI.evaluate(state.customer, chartText, answer);
+      var evalText = await AI.evaluate(state.customer, chartText, answer, state.qaLog);
       $('evalContent').innerHTML = mdToHtml(evalText);
 
       saveHistoryEntry({
@@ -250,6 +312,7 @@
         chart: chartText,
         answer: answer,
         evaluation: evalText,
+        qa: state.qaLog,
         score: extractScore(evalText)
       });
       btn.textContent = '已 批 阅';
@@ -265,8 +328,10 @@
   function nextCustomer() {
     state.customer = null;
     state.chart = null;
+    state.qaLog = [];
     hide('customerSection');
     hide('chartSection');
+    hide('qaSection');
     hide('answerSection');
     hide('evalSection');
     show('welcomeSection');
@@ -317,6 +382,12 @@
   $('btnInvite').addEventListener('click', invite);
   $('btnSubmit').addEventListener('click', submitAnswer);
   $('btnNext').addEventListener('click', nextCustomer);
+
+  $('btnQaSend').addEventListener('click', sendQa);
+  $('btnQaHint').addEventListener('click', function () { askMaster(''); });
+  $('qaInput').addEventListener('keydown', function (e) {
+    if (e.key === 'Enter' && !e.isComposing) sendQa();
+  });
 
   $('btnSettings').addEventListener('click', openSettings);
   $('btnSaveSettings').addEventListener('click', saveSettingsFromForm);

@@ -394,6 +394,118 @@ body {
   opacity: 0.85;
 }
 
+/* ---------- 请教师父 ---------- */
+
+.qa-tip {
+  text-align: center;
+  font-size: 12.5px;
+  color: var(--ink-light);
+  margin-bottom: 14px;
+}
+
+.qa-messages {
+  max-width: 680px;
+  margin: 0 auto;
+  max-height: 380px;
+  overflow-y: auto;
+  padding: 2px 4px;
+}
+
+.qa-messages:empty { display: none; }
+
+.qa-msg {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+  margin-bottom: 12px;
+}
+
+.qa-msg.student { flex-direction: row-reverse; }
+
+.qa-who {
+  flex-shrink: 0;
+  width: 34px;
+  height: 34px;
+  display: grid;
+  place-items: center;
+  font-family: var(--kai);
+  font-size: 14px;
+  border-radius: 50%;
+  border: 1px solid var(--gold-light);
+  color: var(--gold);
+  background: rgba(168, 133, 60, 0.06);
+}
+
+.qa-msg.master .qa-who {
+  color: #f6f0e0;
+  background: linear-gradient(180deg, #a63c2e, #8c2318);
+  border-color: #6d1a11;
+}
+
+.qa-bubble {
+  max-width: 82%;
+  font-size: 14px;
+  line-height: 1.9;
+  padding: 9px 14px;
+  border-radius: 4px;
+  border: 1px solid var(--line);
+  background: #fdfaf2;
+}
+
+.qa-msg.student .qa-bubble {
+  background: var(--paper-deep);
+  border-color: rgba(168, 133, 60, 0.4);
+}
+
+.qa-bubble p { margin: 4px 0; }
+.qa-bubble ul { margin: 4px 0 4px 20px; }
+.qa-bubble li { margin: 3px 0; }
+.qa-bubble strong { color: var(--red); }
+.qa-bubble h4, .qa-bubble h5, .qa-bubble h6 {
+  font-size: 14.5px;
+  color: var(--red);
+  margin: 6px 0 2px;
+  font-weight: 600;
+}
+
+.qa-thinking { color: var(--ink-light); animation: breathe 1.6s ease-in-out infinite; }
+.qa-warn { color: var(--red-light); }
+
+.qa-input-row {
+  max-width: 680px;
+  margin: 12px auto 0;
+  display: flex;
+  gap: 8px;
+}
+
+#qaInput {
+  flex: 1;
+  font-family: var(--serif);
+  font-size: 14px;
+  padding: 9px 12px;
+  color: var(--ink);
+  background: #fdfaf2;
+  border: 1px solid var(--line);
+  border-radius: 3px;
+  min-width: 0;
+}
+#qaInput:focus {
+  outline: none;
+  border-color: var(--gold);
+  box-shadow: 0 0 0 2px rgba(168, 133, 60, 0.15);
+}
+#qaInput::placeholder { color: #a89c86; font-size: 13px; }
+#qaInput:disabled { opacity: 0.6; }
+
+.primary-btn.small {
+  font-size: 14px;
+  padding: 9px 18px;
+  letter-spacing: 0.12em;
+  flex-shrink: 0;
+}
+
+.qa-input-row .ghost-btn { flex-shrink: 0; padding: 8px 12px; font-size: 13px; }
+
 /* ---------- 作答区 ---------- */
 
 #answerInput {
@@ -638,4 +750,7 @@ body {
   .row-star span, .row-door span { font-size: 13px; }
   .gan { font-size: 16px; }
   .chart-info { font-size: 12px; }
+  .qa-bubble { max-width: 100%; }
+  .qa-input-row { flex-wrap: wrap; }
+  #qaInput { flex-basis: 100%; }
 }
