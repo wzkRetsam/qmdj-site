@@ -26,6 +26,7 @@
         <span id="clockTime">--:--:--</span>
         <span class="clock-label">北京时间</span>
       </div>
+      <button id="btnGuide" class="ghost-btn" type="button">指 南</button>
       <button id="btnHistory" class="ghost-btn" type="button">历 史</button>
       <button id="btnSettings" class="ghost-btn" type="button">设 置</button>
     </div>
@@ -68,7 +69,7 @@
     <h2 class="panel-title"><span>奇 门 盘</span></h2>
     <div class="chart-info" id="chartInfo"></div>
     <div class="qimen-grid" id="qimenGrid"></div>
-    <p class="chart-note">上南下北 · 左东右西 · 拆补定局 · 禽随芮转 · 「符」值符落宫 「使」值使落宫 「空」旬空 「马」驿马</p>
+    <p class="chart-note">上南下北 · 左东右西 · 拆补定局 · 禽随芮转 · 「符」值符落宫 「使」值使落宫 「空」旬空 「马」驿马 · <a href="#" id="linkGuide">不知如何推演？看推演指南 ›</a></p>
   </section>
 
   <!-- 问询 -->
@@ -135,6 +136,69 @@
     <div class="modal-foot">
       <button id="btnTestApi" class="ghost-btn dark" type="button">测试连接</button>
       <button id="btnSaveSettings" class="primary-btn" type="button">保 存</button>
+    </div>
+  </div>
+</div>
+
+<!-- 推演指南弹窗 -->
+<div class="modal-mask hidden" id="guideModal">
+  <div class="modal modal-wide">
+    <div class="modal-head">
+      <h3>卦象推演指南</h3>
+      <button class="modal-close" data-close="guideModal" type="button">✕</button>
+    </div>
+    <div class="modal-body guide-content">
+      <p class="guide-intro">得卦之后，依下列六步推演，方有条理。万变不离其宗：<strong>先定用神，再看落宫，终合四盘。</strong></p>
+
+      <div class="guide-step">
+        <h4><i>壹</i>明所问之事，取定用神</h4>
+        <p>用神是断卦的着眼点。求测人看<strong>日干</strong>，所测之事看<strong>时干</strong>，再按事类加取专用之神：</p>
+        <table class="guide-table">
+          <tr><th>所问</th><th>主要用神</th></tr>
+          <tr><td>事业官职</td><td>开门（工作）、值符（领导）、天心星</td></tr>
+          <tr><td>求财生意</td><td>生门（财源）、戊（资本）、生门与日干之生克</td></tr>
+          <tr><td>婚恋感情</td><td>六合（媒妁姻缘）、乙（女方）、庚（男方）</td></tr>
+          <tr><td>疾病健康</td><td>天芮（病星）、天心（医）、乙（药）</td></tr>
+          <tr><td>官司诉讼</td><td>景门（文书口舌）、庚（对手）、值符（官方）</td></tr>
+          <tr><td>出行迁移</td><td>驿马（动象）、开门、时干</td></tr>
+          <tr><td>寻人寻物</td><td>六合（藏匿）、驿马（去向）、失物看时干</td></tr>
+          <tr><td>学业考试</td><td>天辅（文昌）、景门、丁（文书成绩）</td></tr>
+          <tr><td>宅居风水</td><td>生门（房宅）、天任星、所问方位之宫</td></tr>
+        </table>
+      </div>
+
+      <div class="guide-step">
+        <h4><i>贰</i>寻用神落宫，先观旺衰</h4>
+        <p>在九宫中找到用神所在之宫，以季节（月令）衡其旺衰：得令者旺，事易成；失令者衰，事多阻。再看宫中星、门五行与宫五行之生克：门克宫为「门迫」，吉门受迫吉减，凶门受迫凶增。</p>
+      </div>
+
+      <div class="guide-step">
+        <h4><i>叁</i>察星门神干，四盘合参</h4>
+        <p>同宫之内，天盘星、八门、八神、天地盘干合起来看：</p>
+        <ul>
+          <li><strong>八门</strong>：开休生三吉门，死惊伤三凶门，杜景中平。门主人事之动向。</li>
+          <li><strong>九星</strong>：辅禽心为吉，蓬芮柱为凶，冲任英中平。星主天时大势。</li>
+          <li><strong>八神</strong>：值符高贵、螣蛇惊怕、太阴暗助、六合合伙、白虎争斗、玄武暗昧、九地守静、九天张扬。神主暗中之机。</li>
+          <li><strong>天地盘干</strong>：乙丙丁三奇为吉，六仪各有所主；天盘为外为动，地盘为内为静，上下相生则顺，相克则逆。</li>
+        </ul>
+      </div>
+
+      <div class="guide-step">
+        <h4><i>肆</i>参空亡驿马，兼看格局</h4>
+        <p>用神落宫逢<strong>旬空</strong>（盘上标「空」），事多落空难实，待出空之时方有着落；逢<strong>驿马</strong>（标「马」）则主动、主变、主走。另留意天地盘相同为伏吟（事体重复、宜静不宜动），对冲为反吟（反复动荡、去而复返）。</p>
+      </div>
+
+      <div class="guide-step">
+        <h4><i>伍</i>合断吉凶，度其应期</h4>
+        <p>将用神旺衰、星门神干、空马格局综合权衡：吉多凶少则断其成，凶多吉少则断其阻。应期可从用神宫位地支、旺相之时或出空之时推之，初学不必强求精确。</p>
+      </div>
+
+      <div class="guide-step">
+        <h4><i>陆</i>成断语，给人以方便</h4>
+        <p>对客人说话，要有结论、有依据、有建议：先直言吉凶成败，再简述盘面缘由，末了给出趋吉避凶之策（方位、时机、行止）。词气宜温厚，凶不吓人，吉不许满。</p>
+      </div>
+
+      <p class="guide-foot">口诀：一用神、二落宫、三看星门神干、四参空马、五断吉凶、六成语。推演中有疑，可随时到「请教师父」处发问。</p>
     </div>
   </div>
 </div>

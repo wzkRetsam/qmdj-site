@@ -667,6 +667,82 @@ body {
 .test-result.ok { color: #3e6b45; }
 .test-result.err { color: var(--red-light); }
 
+/* 推演指南 */
+
+.guide-content { font-size: 14px; line-height: 1.95; }
+
+.guide-intro {
+  text-align: center;
+  padding: 10px 14px;
+  margin-bottom: 16px;
+  background: var(--paper-deep);
+  border-radius: 3px;
+  color: var(--ink);
+}
+.guide-intro strong { color: var(--red); }
+
+.guide-step { margin-bottom: 18px; }
+
+.guide-step h4 {
+  font-family: var(--kai);
+  font-weight: 400;
+  font-size: 17px;
+  color: var(--red);
+  margin-bottom: 6px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.guide-step h4 i {
+  font-style: normal;
+  flex-shrink: 0;
+  width: 26px;
+  height: 26px;
+  display: grid;
+  place-items: center;
+  font-size: 13px;
+  color: #f6f0e0;
+  background: linear-gradient(180deg, #a63c2e, #8c2318);
+  border-radius: 4px;
+}
+
+.guide-step p { margin: 4px 0; color: var(--ink); }
+.guide-step strong { color: var(--red); }
+.guide-step ul { margin: 6px 0 6px 22px; }
+.guide-step li { margin: 4px 0; }
+
+.guide-table {
+  width: 100%;
+  border-collapse: collapse;
+  margin: 8px 0 4px;
+  font-size: 13px;
+}
+.guide-table th, .guide-table td {
+  border: 1px solid var(--line);
+  padding: 6px 10px;
+  text-align: left;
+}
+.guide-table th {
+  font-weight: 600;
+  color: var(--gold);
+  background: var(--paper-deep);
+  white-space: nowrap;
+}
+.guide-table td:first-child { white-space: nowrap; color: var(--red); }
+
+.guide-foot {
+  margin-top: 4px;
+  padding-top: 12px;
+  border-top: 1px dashed var(--line);
+  text-align: center;
+  font-size: 13px;
+  color: var(--ink-light);
+}
+
+.chart-note a { color: var(--red); text-decoration: none; border-bottom: 1px dotted var(--red-light); }
+.chart-note a:hover { color: var(--red-light); }
+
 /* 历史 */
 
 .history-empty { text-align: center; color: var(--ink-light); padding: 20px 0; }

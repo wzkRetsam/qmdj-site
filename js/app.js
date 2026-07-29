@@ -393,6 +393,13 @@
   $('btnSaveSettings').addEventListener('click', saveSettingsFromForm);
   $('btnTestApi').addEventListener('click', testApi);
 
+  function openGuide() {
+    show('guideModal');
+    document.querySelector('#guideModal .modal-body').scrollTop = 0;
+  }
+  $('btnGuide').addEventListener('click', openGuide);
+  $('linkGuide').addEventListener('click', function (e) { e.preventDefault(); openGuide(); });
+
   $('btnHistory').addEventListener('click', function () { renderHistory(); show('historyModal'); });
   $('btnClearHistory').addEventListener('click', function () {
     if (confirm('确定清空全部练习记录？')) {
