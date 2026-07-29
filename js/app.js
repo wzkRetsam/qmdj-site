@@ -196,11 +196,14 @@
     return div;
   }
 
-  async function askMaster(question) {
+  // retryMsg：重试时复用的师父消息气泡（失败后点「重新请教」传入）
+  async function askMaster(question, retryMsg) {
     if (state.qaBusy || !state.chart) return;
     if (!AI.isConfigured()) {
-      if (question) appendQaMsg('student', '<p>' + escapeHtml(question) + '</p>');
-      appendQaMsg('master', '<p class="qa-warn">尚未配置 AI 接口，师父不在馆中。请点右上角「设 置」填入 API Key 后再来请教。</p>');
+      if (question && !retryMsg) appendQaMsg('student', '<p>' + escapeHtml(question) + '</p>');
+      var warnHtml = '<p class="qa-warn">尚未配置 AI 接口，师父不在馆中。请点右上角「设 置」填入 API Key 后再来请教。</p>';
+      if (retryMsg) retryMsg.querySelector('.qa-bubble').innerHTML = warnHtml;
+      else appendQaMsg('master', warnHtml);
       return;
     }
     state.qaBusy = true;
@@ -210,15 +213,26 @@
     $('btnQaHint').disabled = true;
 
     var shownQ = question || '师父，我一时不知从何入手，请给我几条提示。';
-    appendQaMsg('student', '<p>' + escapeHtml(shownQ) + '</p>');
-    var pending = appendQaMsg('master', '<p class="qa-thinking">师父捻须寻思……</p>');
+    var pending;
+    if (retryMsg) {
+      pending = retryMsg;
+      pending.querySelector('.qa-bubble').innerHTML = '<p class="qa-thinking">师父捻须寻思……</p>';
+    } else {
+      appendQaMsg('student', '<p>' + escapeHtml(shownQ) + '</p>');
+      pending = appendQaMsg('master', '<p class="qa-thinking">师父捻须寻思……</p>');
+    }
 
     try {
       var reply = await AI.consult(state.customer, Qimen.chartToText(state.chart), state.qaLog, question || '');
       pending.querySelector('.qa-bubble').innerHTML = mdToHtml(reply);
       state.qaLog.push({ q: shownQ, a: reply });
     } catch (err) {
-      pending.querySelector('.qa-bubble').innerHTML = '<p class="qa-warn">请教失败：' + escapeHtml(err.message) + '</p>';
+      var bubble = pending.querySelector('.qa-bubble');
+      bubble.innerHTML = '<p class="qa-warn">请教失败：' + escapeHtml(err.message) + '</p>' +
+        '<button class="qa-retry" type="button">重新请教</button>';
+      bubble.querySelector('.qa-retry').addEventListener('click', function () {
+        askMaster(question, pending);
+      });
     }
     $('qaMessages').scrollTop = $('qaMessages').scrollHeight;
     input.disabled = false;

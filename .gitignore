@@ -1,2 +1,4 @@
 .DS_Store
 Thumbs.db
+.qoder/
+.gh-askpass.sh
