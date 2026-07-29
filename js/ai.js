@@ -120,6 +120,38 @@
     return c;
   }
 
+  // 就当前盘面与顾客所问，做一次完整的分步示范推演（教学用）
+  async function deduce(customer, chartText) {
+    return chat([
+      {
+        role: 'system',
+        content: [
+          '你是一位精通奇门遁甲的老师父，要就给定的这一局奇门盘（时家奇门、拆补定局、转盘飞布）和顾客所问之事，手把手做一次完整的示范推演，带学生走一遍。',
+          '必须严格按下列六步、每步一个二级标题，且句句扣住本局实际盘面（引用具体宫位、星、门、神、干、空亡驿马），不可空谈理论、不可臆造盘上没有的信息：',
+          '## 一、取定用神',
+          '根据顾客所问之事，明确本局应取何为用神（含日干为求测人、时干为所测事，及事类专用之神），并简说为何取此用神。',
+          '## 二、用神落宫与旺衰',
+          '指出各用神在本局落入哪个宫，结合月令（节气）判其旺相休囚，并看门宫、星宫五行生克（是否门迫）。',
+          '## 三、星门神干合参',
+          '将用神所在宫的天盘星、八门、八神、天地盘干逐一解读，说明各自吉凶与所主。',
+          '## 四、空亡驿马与格局',
+          '指出用神或关键宫是否逢旬空、驿马，有无伏吟反吟及其他格局，对断事有何影响。',
+          '## 五、合断吉凶与应期',
+          '综合以上，给出本局对所问之事的参考吉凶结论，并量其大致应期。',
+          '## 六、断语与建议',
+          '以可对顾客直接说出的话，给出结论、依据与趋吉避凶的具体建议（方位、时机、行止）。',
+          '句子精练，术语准确；这是供学生对照学习的示范推演，务必思路清晰、步步有据。'
+        ].join('\n')
+      },
+      {
+        role: 'user',
+        content: '【起局盘面】\n' + chartText + '\n\n【顾客所问】\n' +
+          customer.name + '（' + (customer.gender || '') + '，' + (customer.age || '?') + '岁，' + (customer.identity || '') + '），所问类别：' + (customer.category || '未知') +
+          '\n问题：' + customer.question + '\n\n请就此局作完整的分步示范推演。'
+      }
+    ], { temperature: 0.4 });
+  }
+
   // 弟子就当前盘面向师父请教（qaHistory: [{q, a}]；question 为空时表示求入手提示）
   async function consult(customer, chartText, qaHistory, question) {
     var messages = [
@@ -205,6 +237,7 @@
     testConnection: testConnection,
     generateCustomer: generateCustomer,
     randomLocalCustomer: randomLocalCustomer,
+    deduce: deduce,
     consult: consult,
     evaluate: evaluate
   };

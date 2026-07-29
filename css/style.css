@@ -743,6 +743,90 @@ body {
 .chart-note a { color: var(--red); text-decoration: none; border-bottom: 1px dotted var(--red-light); }
 .chart-note a:hover { color: var(--red-light); }
 
+/* 本局示范推演 */
+
+.deduce-bar {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  flex-wrap: wrap;
+  margin-top: 14px;
+}
+
+.deduce-hint {
+  font-size: 12px;
+  color: var(--ink-light);
+  max-width: 460px;
+}
+
+.deduce-content {
+  max-width: 680px;
+  margin: 16px auto 0;
+}
+
+.deduce-body {
+  font-size: 14px;
+  line-height: 2;
+  padding: 18px 22px;
+  background: #fdfaf2;
+  border: 1px solid var(--line);
+  border-left: 3px solid var(--gold);
+  border-radius: 0 3px 3px 0;
+}
+
+.deduce-body h4, .deduce-body h5, .deduce-body h6 {
+  font-family: var(--kai);
+  font-weight: 400;
+  color: var(--red);
+  font-size: 16.5px;
+  margin: 14px 0 6px;
+}
+.deduce-body h4:first-child, .deduce-body h5:first-child { margin-top: 0; }
+.deduce-body p { margin: 6px 0; }
+.deduce-body ul { margin: 6px 0 6px 22px; }
+.deduce-body li { margin: 4px 0; }
+.deduce-body strong { color: var(--red); }
+
+.deduce-loading { text-align: center; color: var(--ink-light); animation: breathe 1.6s ease-in-out infinite; }
+.deduce-warn { text-align: center; color: var(--red-light); }
+
+/* 起盘过程 */
+
+.process-content {
+  max-width: 680px;
+  margin: 16px auto 0;
+  padding-top: 14px;
+  border-top: 1px dashed var(--line);
+}
+
+.process-list {
+  list-style: none;
+  padding: 18px 22px 8px;
+  background: #fdfaf2;
+  border: 1px solid var(--line);
+  border-left: 3px solid var(--red);
+  border-radius: 0 3px 3px 0;
+}
+
+.process-list li { margin-bottom: 16px; }
+.process-list li:last-child { margin-bottom: 8px; }
+
+.process-list h5 {
+  font-family: var(--kai);
+  font-weight: 400;
+  color: var(--red);
+  font-size: 16.5px;
+  margin-bottom: 4px;
+}
+
+.process-list p {
+  font-size: 13.5px;
+  line-height: 1.85;
+  color: var(--ink);
+  margin: 2px 0;
+}
+
 /* 历史 */
 
 .history-empty { text-align: center; color: var(--ink-light); padding: 20px 0; }

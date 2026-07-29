@@ -254,6 +254,82 @@
       };
     }
 
+    // 九、还原起局过程（用实际数值逐步展示排盘推算）
+    var juCn = '一二三四五六七八九'[ju.ju - 1];
+    var southOrder = [4, 9, 2, 3, 5, 7, 8, 1, 6];
+    var diPanStr = southOrder.map(function (gg) {
+      return GONG_NAME[gg] + '宫→' + diPan[gg];
+    }).join('　');
+    var procSteps = [
+      {
+        t: '一、按北京时间定四柱',
+        d: [
+          '以起局时刻的北京时间排四柱，晚子时（23时后）日柱进为次日。',
+          '年柱：' + sz.year + '（以立春分年）',
+          '月柱：' + sz.month + '（以节气之「节」分月，五虎遁得月干）',
+          '日柱：' + sz.day,
+          '时柱：' + sz.hour + '（时支' + sz.hourBranch + '，五鼠遁得时干）'
+        ]
+      },
+      {
+        t: '二、察节气、定符头三元',
+        d: [
+          '起局时刻处于「' + ju.term + '」节气之内。',
+          '符头：日柱所属甲或己日为 ' + ju.fuTou + '。',
+          '按符头地支定元：子午卧酉为上元、辰戌丑未为中元、寅申巳亥为下元 → 本局为' + ju.yuan + '。'
+        ]
+      },
+      {
+        t: '三、定阴阳遁与局数',
+        d: [
+          '冬至至芒种用阳遁，夏至至大雪用阴遁 →「' + ju.term + '」属' + ju.dun + '遁。',
+          '以节气配三元查局：' + ju.term + '·' + ju.yuan + ' → ' + ju.dun + '遁' + juCn + '局。'
+        ]
+      },
+      {
+        t: '四、布地盘六仪三奇',
+        d: [
+          '自' + ju.ju + '宫起，按' + (yang ? '阳遁顺行' : '阴遁逆行') + '布六仪三奇（戊己庚辛壬癸丁丙乙）。',
+          '地盘：' + diPanStr
+        ]
+      },
+      {
+        t: '五、定旬首、值符值使',
+        d: [
+          '时柱' + sz.hour + '属' + gzText(xunShou) + '旬，旬遁' + xunYi + '（六仪之首）。',
+          xunYi + '在地盘' + GONG_NAME[fuGong] + '宫，该宫本位之星「' + STAR_HOME[fuGong] + '」为值符、本位之门「' + DOOR_HOME[jiGong(fuGong)] + '」为值使。'
+        ]
+      },
+      {
+        t: '六、飞值符、转天盘九星',
+        d: [
+          '时干为' + hourGan + (hourGan === '甲' ? '，甲不独用、以旬首' + xunYi + '代之' : '') + '，' + targetGan + '在地盘' + GONG_NAME[jiGong(shiGanGong)] + '宫。',
+          '值符星「' + STAR_HOME[fuGong] + '」自' + GONG_NAME[fuGong] + '宫携天盘干转至时干所在' + GONG_NAME[jiGong(shiGanGong)] + '宫（值符落此），余八星携各自天盘干依序随转。'
+        ]
+      },
+      {
+        t: '七、飞值使、排八门',
+        d: [
+          '值使门「' + DOOR_HOME[jiGong(fuGong)] + '」自值符原宫' + GONG_NAME[fuGong] + '宫起，按本时距旬首之数' + steps + '位、' + (yang ? '阳遁顺飞' : '阴遁逆飞') + '，落' + GONG_NAME[shiGong] + '宫。',
+          '余门依九宫次序随之布定。'
+        ]
+      },
+      {
+        t: '八、排八神',
+        d: [
+          '八神以值符神起于值符落宫' + GONG_NAME[jiGong(shiGanGong)] + '宫，' + (yang ? '阳遁顺布' : '阴遁逆布') + '：值符、螣蛇、太阴、六合、白虎、玄武、九地、九天。'
+        ]
+      },
+      {
+        t: '九、定空亡与驿马',
+        d: [
+          '时旬空：' + shiKong.join('') + '（' + gzText(xunShou) + '旬所缺之地支）。',
+          '日旬空：' + riKong.join('') + '。',
+          '驿马：以时支' + sz.hourBranch + '三合局取，得' + maXing + '（落' + GONG_NAME[ZHI_GONG[maXing]] + '宫）。'
+        ]
+      }
+    ];
+
     return {
       time: {
         text: fmtTime(d),
@@ -268,6 +344,7 @@
       zhiShiLuo: GONG_NAME[shiGong],
       shiKong: shiKong.join(''), riKong: riKong.join(''),
       maXing: maXing,
+      steps: procSteps,
       gongs: gongs
     };
   }

@@ -12,7 +12,9 @@
     chart: null,
     busy: false,
     qaBusy: false,
-    qaLog: []
+    qaLog: [],
+    deduceBusy: false,
+    deduceText: ''
   };
 
   function $(id) { return document.getElementById(id); }
@@ -120,6 +122,68 @@
     }).join('');
   }
 
+  /* ---------- 起盘过程（本地渲染，无需 AI） ---------- */
+
+  function renderProcess() {
+    var box = $('processContent');
+    var steps = (state.chart && state.chart.steps) || [];
+    box.innerHTML = '<ol class="process-list">' + steps.map(function (s) {
+      return '<li><h5>' + escapeHtml(s.t) + '</h5>' +
+        s.d.map(function (line) { return '<p>' + escapeHtml(line) + '</p>'; }).join('') +
+        '</li>';
+    }).join('') + '</ol>';
+  }
+
+  function toggleProcess() {
+    if (!state.chart) return;
+    var box = $('processContent');
+    var btn = $('btnProcess');
+    var willShow = box.classList.contains('hidden');
+    if (willShow && !box.innerHTML) renderProcess();
+    box.classList.toggle('hidden');
+    btn.textContent = willShow ? '◆ 收起起盘过程' : '◇ 查看起盘过程';
+  }
+
+  /* ---------- 本局示范推演 ---------- */
+
+  async function toggleDeduce() {
+    if (state.deduceBusy || !state.chart) return;
+    var box = $('deduceContent');
+    var btn = $('btnDeduce');
+
+    // 已有内容：在展开/收起间切换
+    if (state.deduceText) {
+      var willShow = box.classList.contains('hidden');
+      box.classList.toggle('hidden');
+      btn.textContent = willShow ? '⊖ 收起推演' : '⊕ 演示本局推演';
+      return;
+    }
+
+    if (!AI.isConfigured()) {
+      box.classList.remove('hidden');
+      box.innerHTML = '<p class="deduce-warn">尚未配置 AI 接口，无法演示推演。请点右上角「设 置」填入 API Key 后重试。</p>';
+      return;
+    }
+
+    state.deduceBusy = true;
+    btn.disabled = true;
+    btn.textContent = '师父推演中 ……';
+    box.classList.remove('hidden');
+    box.innerHTML = '<p class="deduce-loading">师父正就本局逐步推演，稍候……</p>';
+
+    try {
+      var text = await AI.deduce(state.customer, Qimen.chartToText(state.chart));
+      state.deduceText = text;
+      box.innerHTML = '<div class="deduce-body">' + mdToHtml(text) + '</div>';
+      btn.textContent = '⊖ 收起推演';
+    } catch (err) {
+      box.innerHTML = '<p class="deduce-warn">推演失败：' + escapeHtml(err.message) + '</p>';
+      btn.textContent = '⊕ 重试演示推演';
+    }
+    btn.disabled = false;
+    state.deduceBusy = false;
+  }
+
   /* ---------- 请教师父 ---------- */
 
   function appendQaMsg(role, html) {
@@ -209,6 +273,7 @@
           }).join('')
           : '') +
         '<h5>我的断语</h5><p>' + escapeHtml(e.answer || '') + '</p>' +
+        (e.deduce ? '<h5>本局示范推演</h5>' + mdToHtml(e.deduce) : '') +
         '<h5>师父点评</h5>' + (e.evaluation ? mdToHtml(e.evaluation) : '<p>（未点评）</p>') +
         '</div></details>';
     }).join('');
@@ -247,6 +312,7 @@
     state.customer = customer;
     state.chart = chart;
     state.qaLog = [];
+    state.deduceText = '';
 
     renderCustomer(customer);
     renderChart(chart);
@@ -259,6 +325,12 @@
     hide('evalSection');
     $('qaMessages').innerHTML = '';
     $('qaInput').value = '';
+    $('deduceContent').innerHTML = '';
+    $('deduceContent').classList.add('hidden');
+    $('btnDeduce').textContent = '⊕ 演示本局推演';
+    $('processContent').innerHTML = '';
+    $('processContent').classList.add('hidden');
+    $('btnProcess').textContent = '◇ 查看起盘过程';
     $('answerInput').value = '';
     $('btnSubmit').disabled = false;
     $('btnSubmit').textContent = '呈 递 答 复';
@@ -313,6 +385,7 @@
         answer: answer,
         evaluation: evalText,
         qa: state.qaLog,
+        deduce: state.deduceText || '',
         score: extractScore(evalText)
       });
       btn.textContent = '已 批 阅';
@@ -329,6 +402,7 @@
     state.customer = null;
     state.chart = null;
     state.qaLog = [];
+    state.deduceText = '';
     hide('customerSection');
     hide('chartSection');
     hide('qaSection');
@@ -385,6 +459,8 @@
 
   $('btnQaSend').addEventListener('click', sendQa);
   $('btnQaHint').addEventListener('click', function () { askMaster(''); });
+  $('btnDeduce').addEventListener('click', toggleDeduce);
+  $('btnProcess').addEventListener('click', toggleProcess);
   $('qaInput').addEventListener('keydown', function (e) {
     if (e.key === 'Enter' && !e.isComposing) sendQa();
   });
