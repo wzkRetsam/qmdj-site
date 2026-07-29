@@ -222,6 +222,44 @@ body {
   color: var(--ink-light);
 }
 
+/* ---------- 访客自行问事 ---------- */
+
+.welcome-custom {
+  max-width: 520px;
+  margin: 24px auto 0;
+  text-align: left;
+}
+
+.welcome-custom-label {
+  font-size: 13px;
+  color: var(--ink-light);
+  margin-bottom: 8px;
+  text-align: center;
+}
+
+.welcome-custom-row {
+  display: flex;
+  gap: 8px;
+}
+
+#customQuestion {
+  flex: 1;
+  font-family: var(--serif);
+  font-size: 14px;
+  padding: 9px 12px;
+  color: var(--ink);
+  background: #fdfaf2;
+  border: 1px solid var(--line);
+  border-radius: 3px;
+  min-width: 0;
+}
+#customQuestion:focus {
+  outline: none;
+  border-color: var(--gold);
+  box-shadow: 0 0 0 2px rgba(168, 133, 60, 0.15);
+}
+#customQuestion::placeholder { color: #a89c86; font-size: 13px; }
+
 /* ---------- 顾客卡片 ---------- */
 
 .customer-card { max-width: 620px; margin: 0 auto; }
@@ -913,4 +951,6 @@ body {
   .qa-bubble { max-width: 100%; }
   .qa-input-row { flex-wrap: wrap; }
   #qaInput { flex-basis: 100%; }
+  .welcome-custom-row { flex-wrap: wrap; }
+  #customQuestion { flex-basis: 100%; }
 }

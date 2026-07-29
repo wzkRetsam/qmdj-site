@@ -69,12 +69,12 @@
 
   /* ---------- 渲染顾客 ---------- */
   function renderCustomer(c) {
-    $('customerName').textContent = c.name;
+    $('customerName').textContent = c.name || '访客';
     $('customerMeta').textContent = [c.gender, c.age ? c.age + '岁' : '', c.identity].filter(Boolean).join(' · ');
     $('customerDemeanor').textContent = c.demeanor || '';
     $('customerQuestion').textContent = '「' + c.question + '」';
     $('customerCategory').textContent = '所问：' + (c.category || '未知');
-    $('customerSource').textContent = c.source === 'ai' ? 'AI 顾客' : '本地题库';
+    $('customerSource').textContent = c.source === 'ai' ? 'AI 顾客' : c.source === 'visitor' ? '访客亲问' : '本地题库';
   }
 
   /* ---------- 渲染奇门盘 ---------- */
@@ -346,6 +346,58 @@
     $('customerSection').scrollIntoView({ behavior: 'smooth' });
   }
 
+  /* ---------- 访客自行问事 ---------- */
+
+  function inviteCustom() {
+    var q = $('customQuestion').value.trim();
+    if (!q) { $('customQuestion').focus(); return; }
+    if (state.busy) return;
+    state.busy = true;
+
+    // 访客亲问：不生成 AI 顾客，直接用输入的问题
+    var customer = {
+      name: '访客',
+      gender: '',
+      age: '',
+      identity: '',
+      demeanor: '',
+      category: '自定义',
+      question: q,
+      source: 'visitor'
+    };
+
+    var chart = Qimen.paiPan(Qimen.beijingNow());
+
+    state.customer = customer;
+    state.chart = chart;
+    state.qaLog = [];
+    state.deduceText = '';
+
+    renderCustomer(customer);
+    renderChart(chart);
+
+    hide('welcomeSection');
+    show('customerSection');
+    show('chartSection');
+    show('qaSection');
+    show('answerSection');
+    hide('evalSection');
+    $('qaMessages').innerHTML = '';
+    $('qaInput').value = '';
+    $('deduceContent').innerHTML = '';
+    $('deduceContent').classList.add('hidden');
+    $('btnDeduce').textContent = '⊕ 演示本局推演';
+    $('processContent').innerHTML = '';
+    $('processContent').classList.add('hidden');
+    $('btnProcess').textContent = '◇ 查看起盘过程';
+    $('answerInput').value = '';
+    $('btnSubmit').disabled = false;
+    $('btnSubmit').textContent = '呈 递 答 复';
+
+    state.busy = false;
+    $('customerSection').scrollIntoView({ behavior: 'smooth' });
+  }
+
   function showEvalNotice(text, isWarn) {
     show('evalSection');
     $('evalContent').innerHTML = '<p class="' + (isWarn ? 'eval-warn' : 'eval-loading') + '">' + escapeHtml(text) + '</p>';
@@ -454,6 +506,10 @@
 
   /* ---------- 事件绑定 ---------- */
   $('btnInvite').addEventListener('click', invite);
+  $('btnCustomInvite').addEventListener('click', inviteCustom);
+  $('customQuestion').addEventListener('keydown', function (e) {
+    if (e.key === 'Enter' && !e.isComposing) inviteCustom();
+  });
   $('btnSubmit').addEventListener('click', submitAnswer);
   $('btnNext').addEventListener('click', nextCustomer);
 
